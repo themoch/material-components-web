@@ -1,0 +1,94 @@
+//
+// Copyright 2018 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+@import './variables';
+
+// Public
+
+@mixin mdc-select-label-color($color) {
+  &:not(.mdc-select--disabled) {
+    @include mdc-select-label-color_($color);
+  }
+}
+
+// Private
+
+@mixin mdc-select-invalid-label-shake-keyframes_($modifier, $positionY, $positionX: 0%, $scale: .75) {
+  @keyframes invalid-shake-float-above-#{$modifier} {
+    0% {
+      transform: translateX(calc(0 - #{$positionX})) translateY(-#{$positionY}) scale(#{$scale});
+    }
+
+    33% {
+      animation-timing-function: cubic-bezier(.5, 0, .701732, .495819);
+      transform: translateX(calc(4% - #{$positionX})) translateY(-#{$positionY}) scale(#{$scale});
+    }
+
+    66% {
+      animation-timing-function: cubic-bezier(.302435, .381352, .55, .956352);
+      transform: translateX(calc(-4% - #{$positionX})) translateY(-#{$positionY}) scale(#{$scale});
+    }
+
+    100% {
+      transform: translateX(calc(0 - #{$positionX})) translateY(-#{$positionY}) scale(#{$scale});
+    }
+  }
+}
+
+@include mdc-select-invalid-label-shake_keyframes_(standard, $mdc-select-label-position-y);
+@include mdc-select-invalid-label-shake-keyframes_(box, $mdc-select-box-label-position-y);
+@include mdc-select-invalid-label-shake-keyframes_(box-dense, $mdc-select-box-dense-label-position-y, 0%, $mdc-select-dense-label-scale);
+@include mdc-select-invalid-label-shake_keyframes_(outlined, $mdc-select-outlined-label-position-y);
+@include mdc-select-invalid-label-shake_keyframes_(outlined-dense, $mdc-select-outlined-dense-label-position-y, 0%, $mdc-select-dense-label-scale);
+@include mdc-select-invalid-label-shake_keyframes_(outlined-leading-icon, $mdc-select-outlined-label-position-y, $mdc-select-outlined-with-leading-icon-label-position-x);
+@include mdc-select-invalid-label-shake_keyframes_(outlined-leading-icon-dense, $mdc-select-outlined-dense-label-position-y, $mdc-select-outlined-dense-with-leading-icon-label-position-x, $mdc-select-dense-label-scale);
+@include mdc-select-invalid-label-shake-keyframes_(textarea, $mdc-select-textarea-label-position-y, 0%, $mdc-select-textarea-label-scale);
+
+@mixin mdc-select-label-float_($positionY, $positionX: 0%, $scale: .75) {
+  @if $positionX == 0 {
+    .mdc-select__label--float-above {
+      transform: translateY(-1 * $positionY) scale($scale);
+    }
+  } @else {
+    .mdc-select__label--float-above {
+      transform: translateY(-1 * $positionY) translateX(-1 * $positionX) scale($scale);
+
+      @include mdc-rtl {
+        transform: translateY(-1 * $positionY) translateX($positionX) scale($scale);
+      }
+    }
+  }
+}
+
+@mixin mdc-select-label-shake_($modifier) {
+  .mdc-select__label--shake {
+    animation: invalid-shake-float-above-#{$modifier} 250ms 1;
+  }
+}
+
+@mixin mdc-select-label-color_($color) {
+  .mdc-select__label,
+  .mdc-select__input::placeholder { // placeholder used in place of label on css only version
+    @include mdc-theme-prop(color, $color);
+  }
+}
+
+// Used for textarea in case of scrolling
+@mixin mdc-select-label-background-color_($color) {
+  .mdc-select__label {
+    @include mdc-theme-prop(background-color, $color);
+  }
+}

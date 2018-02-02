@@ -37,8 +37,6 @@ export default class MDCSelectFoundation extends MDCFoundation {
     return {
       addClass: (/* className: string */) => {},
       removeClass: (/* className: string */) => {},
-      addClassToLabel: (/* className: string */) => {},
-      removeClassFromLabel: (/* className: string */) => {},
       addClassToBottomLine: (/* className: string */) => {},
       removeClassFromBottomLine: (/* className: string */) => {},
       setBottomLineAttr: (/* attr: string, value: string */) => {},
@@ -77,8 +75,11 @@ export default class MDCSelectFoundation extends MDCFoundation {
       getWindowInnerHeight: () => /* number */ 0,
     };
   }
-
-  constructor(adapter) {
+  /**
+   * @param {!MDCSelectAdapter} adapter
+   * @param {!FoundationMapType=} foundationMap Map from subcomponent names to their subfoundations.
+   */
+  constructor(adapter, foundationMap = /** @type {!FoundationMapType} */ ({})) {
     super(Object.assign(MDCSelectFoundation.defaultAdapter, adapter));
     this.ctx_ = null;
     this.selectedIndex_ = -1;
@@ -87,6 +88,8 @@ export default class MDCSelectFoundation extends MDCFoundation {
 
     /** @private {number} */
     this.animationRequestId_ = 0;
+    /** @type {!MDCSelectLabelFoundation|undefined} */
+    this.label_ = foundationMap.label;
 
     this.displayHandler_ = (evt) => {
       evt.preventDefault();
@@ -107,9 +110,9 @@ export default class MDCSelectFoundation extends MDCFoundation {
     this.cancelHandler_ = () => {
       this.close_();
 
-      if (this.selectedIndex_ === -1) {
-        this.adapter_.removeClassFromLabel(cssClasses.LABEL_FLOAT_ABOVE);
-      }
+      // if (this.selectedIndex_ === -1) {
+      //   this.adapter_.removeClassFromLabel(cssClasses.LABEL_FLOAT_ABOVE);
+      // }
     };
   }
 
@@ -122,6 +125,12 @@ export default class MDCSelectFoundation extends MDCFoundation {
       MDCMenuFoundation.strings.SELECTED_EVENT, this.selectionHandler_);
     this.adapter_.registerMenuInteractionHandler(
       MDCMenuFoundation.strings.CANCEL_EVENT, this.cancelHandler_);
+
+    if (this.label_ && this.getValue()) {
+      this.label_.styleFloat(
+        this.getValue(), this.isFocused_, false);
+    }
+
     this.resize();
   }
 
@@ -214,12 +223,23 @@ export default class MDCSelectFoundation extends MDCFoundation {
     const focusIndex = this.selectedIndex_ < 0 ? 0 : this.selectedIndex_;
 
     this.setMenuStylesForOpenAtIndex_(focusIndex);
-    this.adapter_.addClassToLabel(cssClasses.LABEL_FLOAT_ABOVE);
+
+    if (this.label_) {
+      this.label_.styleFloat(
+        this.getValue(), this.isFocused_, false);
+    }
+
+    // this.adapter_.addClassToLabel(cssClasses.LABEL_FLOAT_ABOVE);
     this.adapter_.addClassToBottomLine(cssClasses.BOTTOM_LINE_ACTIVE);
     this.adapter_.addClass(OPEN);
     this.animationRequestId_ = requestAnimationFrame(() => {
       this.adapter_.openMenu(focusIndex);
       this.isFocused_ = true;
+
+      if (this.label_) {
+        this.label_.styleFloat(
+          this.getValue(), this.isFocused_, false);
+      }
     });
   }
 
@@ -250,6 +270,12 @@ export default class MDCSelectFoundation extends MDCFoundation {
 
   close_() {
     const {OPEN} = MDCSelectFoundation.cssClasses;
+
+    if (this.label_ && this.getValue()) {
+      this.label_.styleFloat(
+        this.getValue(), this.isFocused_, false);
+    }
+
     this.adapter_.removeClass(OPEN);
     this.adapter_.removeClassFromBottomLine(cssClasses.BOTTOM_LINE_ACTIVE);
     this.adapter_.focus();

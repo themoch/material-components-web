@@ -20,6 +20,7 @@ import {MDCMenu} from '@material/menu/index';
 
 import MDCSelectFoundation from './foundation';
 import {strings} from './constants';
+import {MDCSelectLabel} from "./label/index";
 
 export {MDCSelectFoundation};
 
@@ -70,23 +71,27 @@ export class MDCSelect extends MDCComponent {
     return null;
   }
 
-  initialize(menuFactory = (el) => new MDCMenu(el)) {
+  initialize(menuFactory = (el) => new MDCMenu(el),
+    labelFactory = (el) => new MDCSelectLabel(el)) {
     this.surface_ = this.root_.querySelector(strings.SURFACE_SELECTOR);
-    this.label_ = this.root_.querySelector(strings.LABEL_SELECTOR);
     this.bottomLine_ = this.root_.querySelector(strings.BOTTOM_LINE_SELECTOR);
     this.selectedText_ = this.root_.querySelector(strings.SELECTED_TEXT_SELECTOR);
     this.menuEl_ = this.root_.querySelector(strings.MENU_SELECTOR);
     this.menu_ = menuFactory(this.menuEl_);
 
+    const labelElement = this.root_.querySelector(strings.LABEL_SELECTOR);
+    if (labelElement) {
+      this.label_ = labelFactory(labelElement);
+    }
+
     this.ripple = new MDCRipple(this.surface_);
   }
 
   getDefaultFoundation() {
-    return new MDCSelectFoundation({
+    return new MDCSelectFoundation(
+      /** @type {!MDCSelectAdapter} */ (Object.assign({
       addClass: (className) => this.root_.classList.add(className),
       removeClass: (className) => this.root_.classList.remove(className),
-      addClassToLabel: (className) => this.label_.classList.add(className),
-      removeClassFromLabel: (className) => this.label_.classList.remove(className),
       addClassToBottomLine: (className) => this.bottomLine_.classList.add(className),
       removeClassFromBottomLine: (className) => this.bottomLine_.classList.remove(className),
       setBottomLineAttr: (attr, value) => this.bottomLine_.setAttribute(attr, value),
@@ -126,7 +131,7 @@ export class MDCSelect extends MDCComponent {
       getWindowInnerHeight: () => window.innerHeight,
       addBodyClass: (className) => document.body.classList.add(className),
       removeBodyClass: (className) => document.body.classList.remove(className),
-    });
+    }), this.getFoundationMap_());
   }
 
   initialSyncWithDOM() {
@@ -139,5 +144,15 @@ export class MDCSelect extends MDCComponent {
     if (this.root_.getAttribute('aria-disabled') === 'true') {
       this.disabled = true;
     }
+  }
+
+  /**
+   * Returns a map of all subcomponents to subfoundations.
+   * @return {!FoundationMapType}
+   */
+  getFoundationMap_() {
+    return {
+      label: this.label_ ? this.label_.foundation : undefined,
+    };
   }
 }
