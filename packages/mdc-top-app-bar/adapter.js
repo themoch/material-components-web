@@ -46,6 +46,18 @@ class MDCTopAppBarAdapter {
    * @return {boolean}
    */
   hasClass(className) {}
+
+  /** @param {function(!Event)} handler */
+  registerScrollHandler(handler) {}
+
+  /** @param {function(!Event)} handler */
+  deregisterScrollHandler(handler) {}
+
+  /** @return {number} */
+  getViewportScrollY() {}
+
+  /** @return {number} */
+  totalActionIcons() {}
 }
 
 export {MDCTopAppBarAdapter};

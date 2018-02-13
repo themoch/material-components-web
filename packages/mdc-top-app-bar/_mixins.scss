@@ -42,6 +42,16 @@
   }
 }
 
+@mixin mdc-top-app-bar-mobile-breakpoint($mobile-breakpoint: $mdc-top-app-bar-mobile-breakpoint) {
+  @media (max-width: $mobile-breakpoint) {
+    @content;
+  }
+}
+
+@mixin mdc-top-app-bar-short-border-radius($border-radius: $mdc-top-app-bar-short-collapsed-border-radius) {
+  border-bottom-right-radius: $border-radius;
+}
+
 //
 // Private
 //

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {strings} from './constants';
+import {strings, cssClasses} from './constants';
 import MDCFoundation from '@material/base/foundation';
 
 /**
@@ -26,6 +26,11 @@ export default class MDCTopAppBarFoundation extends MDCFoundation {
     return strings;
   }
 
+  /** @return enum {string} */
+  static get cssClasses() {
+    return cssClasses;
+  }
+
   /**
    * {@see MDCTopAppBarAdapter} for typing information on parameters and return
    * types.
@@ -36,6 +41,10 @@ export default class MDCTopAppBarFoundation extends MDCFoundation {
       hasClass: (/* className: string */) => /* boolean */ false,
       addClass: (/* className: string */) => {},
       removeClass: (/* className: string */) => {},
+      registerScrollHandler: (/* handler: EventListener */) => {},
+      deregisterScrollHandler: (/* handler: EventListener */) => {},
+      getViewportScrollY: () => /* number */ 0,
+      totalActionIcons: () => /* number */ 0,
     };
   }
 
@@ -44,5 +53,54 @@ export default class MDCTopAppBarFoundation extends MDCFoundation {
    */
   constructor(adapter) {
     super(Object.assign(MDCTopAppBarFoundation.defaultAdapter, adapter));
+
+    this.isCollapsed = false;
+
+    this.scrollHandler_ = this.shortAppBarScrollHandler.bind(this);
+  }
+
+  init() {
+    if (this.isShortAppBar()) {
+      this.adapter_.registerScrollHandler(this.scrollHandler_);
+      this.styleShortAppBar();
+    }
+  }
+
+  destroy() {
+    this.adapter_.deregisterScrollHandler(this.scrollHandler_);
+  }
+
+  /** @return {boolean} */
+  isShortAppBar() {
+    return this.adapter_.hasClass(cssClasses.SHORT_CLASS);
+  }
+
+  /**
+   * Class used to set the initial style of the short top app bar
+   */
+  styleShortAppBar() {
+    if (this.adapter_.totalActionIcons() > 0) {
+      this.adapter_.addClass(cssClasses.RIGHT_ICON_CLASS);
+    }
+  }
+
+  /**
+   * Scroll handler for the applying/removing the closed modifier class
+   * on the short top app bar.
+   */
+  shortAppBarScrollHandler() {
+    const currentScroll = this.adapter_.getViewportScrollY();
+
+    if (currentScroll === 0) {
+      if (this.isCollapsed) {
+        this.adapter_.removeClass(cssClasses.SHORT_CLOSED_CLASS);
+        this.isCollapsed = false;
+      }
+    } else {
+      if (!this.isCollapsed) {
+        this.adapter_.addClass(cssClasses.SHORT_CLOSED_CLASS);
+        this.isCollapsed = true;
+      }
+    }
   }
 }

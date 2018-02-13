@@ -18,6 +18,9 @@ import MDCTopAppBarFoundation from './foundation';
 import {MDCComponent} from '@material/base/index';
 import {MDCRipple} from '@material/ripple/index';
 import {strings} from './constants';
+import * as util from './util';
+
+export {util};
 
 
 /**
@@ -83,6 +86,10 @@ export class MDCTopAppBar extends MDCComponent {
         hasClass: (className) => this.root_.classList.contains(className),
         addClass: (className) => this.root_.classList.add(className),
         removeClass: (className) => this.root_.classList.remove(className),
+        registerScrollHandler: (handler) => window.addEventListener('scroll', handler, util.applyPassive()),
+        deregisterScrollHandler: (handler) => window.removeEventListener('scroll', handler),
+        getViewportScrollY: () => window.pageYOffset,
+        totalActionIcons: () => this.root_.querySelectorAll(strings.ACTION_ICON_SELECTOR).length,
       });
   }
 }
